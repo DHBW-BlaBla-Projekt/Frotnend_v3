@@ -13,6 +13,7 @@ export function BookingsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [cancellingId, setCancellingId] = useState<number | null>(null)
+  const activeBookings = bookings.filter((booking) => booking.status === 'CONFIRMED')
 
   useEffect(() => {
     if (!auth) {
@@ -60,15 +61,20 @@ export function BookingsPage() {
         <h1 id="my-bookings">Meine Buchungen</h1>
         {loading ? <p className="empty-state">Buchungen werden geladen ...</p> : null}
         {error ? <p className="error-message" role="alert">Fehler: {error}</p> : null}
-        {!loading && !error && bookings.length === 0 ? <p className="empty-state">Du hast noch keine Buchungen.</p> : null}
+        {!loading && !error && activeBookings.length === 0 ? <p className="empty-state">Du hast noch keine Buchungen.</p> : null}
 
         <div className="bookings-list">
-          {bookings.map((booking) => (
+          {activeBookings.map((booking) => (
             <article className="card booking-card" key={booking.id}>
               <div className="booking-header">
                 <div>
                   <span className="eyebrow">Mitfahrt</span>
-                  <h2>Booking #{booking.id}</h2>
+                  <h2>
+                    Booking #{booking.id}
+                    {booking.startLocation || booking.endLocation
+                      ? ` · ${booking.startLocation ?? 'Unbekannt'} → ${booking.endLocation ?? 'Unbekannt'}`
+                      : ''}
+                  </h2>
                 </div>
                 <span className="booking-status">{booking.status}</span>
               </div>

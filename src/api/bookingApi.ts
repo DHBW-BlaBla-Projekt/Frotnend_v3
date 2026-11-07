@@ -8,6 +8,8 @@ export interface BookingResponse {
   passengerUsername: string
   status: string
   createdAt?: string
+  startLocation?: string | null
+  endLocation?: string | null
 }
 
 export function getMyBookings(token: string) {
