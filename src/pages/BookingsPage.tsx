@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { cancelBooking, getMyBookingHistory, getMyBookings, type BookingResponse } from '../api/bookingApi'
 import { createRating, getDriverRatings } from '../api/ratingApi'
+import { getMyRides, type Ride } from '../api/rideApi'
 import { useAuth } from '../context/useAuth'
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', {
@@ -15,13 +16,13 @@ export function BookingsPage() {
   const [error, setError] = useState('')
   const [cancellingId, setCancellingId] = useState<number | null>(null)
   const [history, setHistory] = useState<BookingResponse[]>([])
+  const [offeredRideHistory, setOfferedRideHistory] = useState<Ride[]>([])
   const [ratingBookingId, setRatingBookingId] = useState<number | null>(null)
   const [ratingValues, setRatingValues] = useState<Record<number, number>>({})
   const [ratingComments, setRatingComments] = useState<Record<number, string>>({})
   const [ratedRideIds, setRatedRideIds] = useState<Set<number>>(new Set())
   const [ratingLoadingId, setRatingLoadingId] = useState<number | null>(null)
   const activeBookings = bookings.filter((booking) => booking.status === 'CONFIRMED')
-
   useEffect(() => {
     if (!auth) {
       setLoading(false)
@@ -31,10 +32,14 @@ export function BookingsPage() {
     Promise.all([
       getMyBookings(auth.accessToken),
       getMyBookingHistory(auth.accessToken),
+      getMyRides(auth.accessToken),
     ])
-      .then(async ([nextBookings, nextHistory]) => {
+      .then(async ([nextBookings, nextHistory, nextOfferedRides]) => {
         setBookings(nextBookings)
         setHistory(nextHistory)
+        setOfferedRideHistory(nextOfferedRides.filter(
+          (ride) => new Date(ride.departureTime).getTime() <= Date.now(),
+        ))
         const drivers = [...new Set(nextHistory.map((booking) => booking.driverUsername).filter(Boolean))]
         const ratings = await Promise.all(drivers.map((driver) => getDriverRatings(driver!)))
         const ownRatings = ratings.flatMap((response) => response.ratings)
@@ -145,7 +150,9 @@ export function BookingsPage() {
 
       <section aria-labelledby="booking-history">
         <h2 id="booking-history">Vergangene Fahrten</h2>
-        {history.length === 0 ? <p className="empty-state">Noch keine vergangenen Fahrten.</p> : null}
+        {history.length === 0 && offeredRideHistory.length === 0 ? (
+          <p className="empty-state">Noch keine vergangenen Fahrten.</p>
+        ) : null}
         <div className="bookings-list">
           {history.map((booking) => (
             <article className="card booking-card" key={`history-${booking.id}`}>
@@ -199,6 +206,28 @@ export function BookingsPage() {
             </article>
           ))}
         </div>
+        {offeredRideHistory.length > 0 ? (
+          <>
+            <h3>Als Fahrer</h3>
+            <div className="bookings-list">
+              {offeredRideHistory.map((ride) => (
+                <article className="card booking-card" key={`offered-history-${ride.id}`}>
+                  <div className="booking-header">
+                    <div>
+                      <span className="eyebrow">Fahrt angeboten</span>
+                      <h2>{ride.startLocation} → {ride.endLocation}</h2>
+                    </div>
+                    <span className="booking-status">BEENDET</span>
+                  </div>
+                  <div className="booking-meta">
+                    <p><strong>Fahrt-ID:</strong> {ride.id}</p>
+                    <p><strong>Abfahrt:</strong> {dateFormatter.format(new Date(ride.departureTime))}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </>
+        ) : null}
       </section>
     </main>
   )

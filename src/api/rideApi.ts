@@ -24,6 +24,10 @@ export function getAvailableRides() {
   return apiRequest<Ride[]>(RIDE_URL, '/api/rides/public/available')
 }
 
+export function getMyRides(token: string) {
+  return apiRequest<Ride[]>(RIDE_URL, '/api/rides/my', {}, token)
+}
+
 export function createRide(
   request: {
     startLocation: string

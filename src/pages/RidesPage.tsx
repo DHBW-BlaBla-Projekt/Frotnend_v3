@@ -50,6 +50,12 @@ export function RidesPage() {
 
   useEffect(() => {
     void loadRides()
+
+    const refreshTimer = window.setInterval(() => {
+      void loadRides()
+    }, 30_000)
+
+    return () => window.clearInterval(refreshTimer)
   }, [])
 
   useEffect(() => {
