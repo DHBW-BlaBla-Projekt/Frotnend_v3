@@ -10,10 +10,16 @@ export interface BookingResponse {
   createdAt?: string
   startLocation?: string | null
   endLocation?: string | null
+  driverUsername?: string | null
+  departureTime?: string | null
 }
 
 export function getMyBookings(token: string) {
   return apiRequest<BookingResponse[]>(BOOKING_URL, '/api/bookings/my-bookings', {}, token)
+}
+
+export function getMyBookingHistory(token: string) {
+  return apiRequest<BookingResponse[]>(BOOKING_URL, '/api/bookings/my-history', {}, token)
 }
 
 export function createBooking(rideId: number, token: string) {

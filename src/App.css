@@ -383,6 +383,54 @@ button:disabled {
   color: var(--ink);
 }
 
+.rating-form {
+  display: grid;
+  gap: 12px;
+}
+
+.rating-form textarea {
+  background: var(--background);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  box-sizing: border-box;
+  color: var(--ink);
+  font: inherit;
+  padding: 11px 12px;
+  resize: vertical;
+  width: 100%;
+}
+
+.rating-stars {
+  display: flex;
+  gap: 4px;
+}
+
+.star-button {
+  background: transparent;
+  color: #d6d3d1;
+  font-size: 1.8rem;
+  line-height: 1;
+  padding: 0 3px;
+}
+
+.star-button:hover,
+.star-button.selected {
+  background: transparent;
+  color: var(--accent);
+  transform: none;
+}
+
+.rating-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.rating-complete {
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
 .site-footer {
   border-top: 1px solid var(--line);
   margin-top: 32px;
